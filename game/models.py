@@ -3,13 +3,20 @@ from django.db import models
 
 class GameModel(models.Model):
     SPACE = ' '
-    PLAYER_WIN = "PL"
+    PLAYER_WIN = "PW"
+    PLAYER_LOST = "PL"
     ONGOING = "OG"
+
     player_name = models.CharField(max_length=50)
+    # Represents 6 rows of 5 letters (30 characters)
     board = models.CharField(max_length=30)
+    # The word the player has to guess
+    target_word = models.CharField(max_length=5)
+    # Track the current attempt row
+    current_row = models.IntegerField(default=0)
 
     def two_d_board(self):
-        return [list(self.board[:5]), list(self.board[5:10]), list(self.board[10:15]), self.board[15:20], self.board[20:25], self.board[25:]]
+        return [list(self.board[i * 5:(i + 1) * 5]) for i in range(6)]
 
     @staticmethod
     def flatten(grid):
@@ -20,10 +27,41 @@ class GameModel(models.Model):
         grid = ["|".join(cell) for cell in grid]
         return "\n".join(grid)
 
-    def write_word(self, row, list):
+    def write_word(self, row, word_list):
+        if row < 0 or row > 5:
+            raise ValueError("Invalid row number")
+        if len(word_list) != 5:
+            raise ValueError("Word must be 5 letters long")
+
         grid = self.two_d_board()
         for i in range(5):
-            grid[row][i] = list[i]
-            self.board = GameModel.flatten(grid)
+            grid[row][i] = word_list[i]
+        self.board = GameModel.flatten(grid)
+        self.current_row += 1
+        self.save()
 
-# Create your models here.
+        self.check_word(''.join(word_list))
+
+    def status(self):
+        grid = self.two_d_board()
+        for row in range(6):
+            current_guess = ''.join(grid[row])
+            if current_guess == self.target_word:
+                return GameModel.PLAYER_WIN
+
+        if self.current_row >= 6:
+            return GameModel.PLAYER_LOST
+
+        return GameModel.ONGOING
+
+    def check_word(self, guess):
+        feedback = []
+        for i in range(5):
+            if guess[i] == self.target_word[i]:
+                feedback.append('G')
+            elif guess[i] in self.target_word:
+                feedback.append('Y')
+            else:
+                feedback.append('B')
+
+        return feedback
