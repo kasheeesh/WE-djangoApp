@@ -1,0 +1,22 @@
+<h2>{{ game.player_name }}'s Game</h2>
+<p>Status: {{ status }}</p>
+
+<div class="board">
+  {% for row in board %}
+  <div class="row">
+    {% for cell in row %}
+    <span class="cell">{{ cell }}</span>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+
+{% if status == "OG" %}
+<form method="post">
+  {% csrf_token %}
+  <input type="text" name="guess" maxlength="5" required />
+  <button type="submit">Submit Guess</button>
+</form>
+{% else %}
+<p>Game Over!</p>
+{% endif %}

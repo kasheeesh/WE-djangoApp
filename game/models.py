@@ -8,11 +8,8 @@ class GameModel(models.Model):
     ONGOING = "OG"
 
     player_name = models.CharField(max_length=50)
-    # Represents 6 rows of 5 letters (30 characters)
     board = models.CharField(max_length=30)
-    # The word the player has to guess
     target_word = models.CharField(max_length=5)
-    # Track the current attempt row
     current_row = models.IntegerField(default=0)
 
     def two_d_board(self):
