@@ -1,11 +1,3 @@
-# # from django.shortcuts import render
-# # from django.http import HttpRequest, HttpResponse
-
-
-# # def index(request: HttpRequest) -> HttpResponse:
-# #     return HttpResponse("Hello world, you are at the wordle landing page")
-
-
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views import View
